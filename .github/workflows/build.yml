@@ -1,1 +1,36 @@
+name: Build APK
 
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:   # bisa dijalankan manual dari tab Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoScroll-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
